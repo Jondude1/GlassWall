@@ -84,6 +84,7 @@ class SettingsActivity : ComponentActivity() {
         var url by remember { mutableStateOf(prefs.civUrl) }
         var model by remember { mutableStateOf(prefs.civModel) }
         var labels by remember { mutableStateOf(prefs.showLabels) }
+        var tilt by remember { mutableStateOf(prefs.tiltRotate) }
         var catchUp by remember { mutableStateOf(prefs.catchUp) }
         var fps by remember { mutableStateOf(prefs.fps) }
         var testResult by remember { mutableStateOf("") }
@@ -177,6 +178,13 @@ class SettingsActivity : ComponentActivity() {
                     Text("Show who is who and what they say", style = MaterialTheme.typography.bodySmall)
                 }
                 Switch(labels, { labels = it; prefs.showLabels = it })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Rotate with tilt")
+                    Text("Portrait or landscape follows how you hold the tablet, even with auto-rotate off", style = MaterialTheme.typography.bodySmall)
+                }
+                Switch(tilt, { tilt = it; prefs.tiltRotate = it })
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {

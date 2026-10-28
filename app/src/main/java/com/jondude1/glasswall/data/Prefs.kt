@@ -19,6 +19,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("showLabels", false)
         set(v) = sp.edit().putBoolean("showLabels", v).apply()
 
+    /** Turn the picture with the tablet's tilt sensor, even when the screen itself is rotation-locked. */
+    var tiltRotate: Boolean
+        get() = sp.getBoolean("tiltRotate", true)
+        set(v) = sp.edit().putBoolean("tiltRotate", v).apply()
+
     var fps: Int
         get() = sp.getInt("fps", 30).coerceIn(10, 60)
         set(v) = sp.edit().putInt("fps", v).apply()
