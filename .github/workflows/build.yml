@@ -1,0 +1,49 @@
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+
+      - name: Build release APK
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log
+        continue-on-error: true
+        id: build
+
+      - name: Report compile errors
+        if: steps.build.outcome == 'failure'
+        run: |
+          grep -E '^e: ' build.log | head -20 | while IFS= read -r line; do echo "::error::${line:0:400}"; done
+          grep -A12 'What went wrong' build.log | head -20 | while IFS= read -r line; do echo "::error::${line:0:400}"; done
+          exit 1
+
+      - name: Name the APK
+        run: cp app/build/outputs/apk/release/app-release.apk GlassWall-v1.0.${{ github.run_number }}.apk
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: GlassWall v1.0.${{ github.run_number }}
+          files: GlassWall-v1.0.${{ github.run_number }}.apk
+          make_latest: true
