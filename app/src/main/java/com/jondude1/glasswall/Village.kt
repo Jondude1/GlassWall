@@ -55,7 +55,7 @@ object Village {
         synchronized(lock) {
             val s = sim(context)
             if (lastTickNs != 0L) {
-                var dt = (nowNs - lastTickNs) / 1_000_000_000.0
+                var dt = (nowNs - lastTickNs) / 1_000_000_000.0 * prefs(context).speed
                 // tick() itself clamps one step to 0.1 s, so feed it small steps
                 while (dt > 0.0) {
                     val step = minOf(dt, 0.05)
@@ -106,6 +106,13 @@ object Village {
             } catch (_: Exception) {
             }
         }
+    }
+
+    /** 1x -> 2x -> 5x -> 1x. Returns the new speed. */
+    fun cycleSpeed(context: Context): Int {
+        val p = prefs(context)
+        p.speed = when (p.speed) { 1 -> 2; 2 -> 5; else -> 1 }
+        return p.speed
     }
 
     fun restart(context: Context) {

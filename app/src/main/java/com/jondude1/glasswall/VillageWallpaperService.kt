@@ -1,5 +1,6 @@
 package com.jondude1.glasswall
 
+import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Paint
 import android.hardware.Sensor
@@ -31,6 +32,27 @@ class VillageWallpaperService : WallpaperService() {
         private var width = 0
         private var height = 0
         private var hasSurface = false
+        private var lastTapMs = 0L
+        private var badgeUntilMs = 0L
+        private val badgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = android.graphics.Color.WHITE
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            setShadowLayer(6f, 0f, 2f, android.graphics.Color.BLACK)
+        }
+
+        // double-tap the wallpaper to change how fast time runs
+        override fun onCommand(action: String?, x: Int, y: Int, z: Int, extras: android.os.Bundle?, resultRequested: Boolean): android.os.Bundle? {
+            if (action == WallpaperManager.COMMAND_TAP) {
+                val now = System.currentTimeMillis()
+                if (now - lastTapMs < 450L) {
+                    Village.cycleSpeed(applicationContext)
+                    badgeUntilMs = now + 1500L
+                    lastTapMs = 0L
+                } else lastTapMs = now
+            }
+            return super.onCommand(action, x, y, z, extras, resultRequested)
+        }
 
         // ---- tilt: which way up the tablet is really being held (0, 1, 2, 3 quarter turns) ----
         private var gx = 0f
@@ -129,6 +151,10 @@ class VillageWallpaperService : WallpaperService() {
                     }
                 }
                 canvas.restore()
+                if (System.currentTimeMillis() < badgeUntilMs) {
+                    badgePaint.textSize = minOf(sw, sh) * 0.09f
+                    canvas.drawText("${prefs.speed}x", sw / 2f, sh * 0.12f, badgePaint)
+                }
                 val since = (nowNs - fadeFrom) / 1_000_000L
                 if (fadeFrom != 0L && since < 350L) {
                     canvas.drawColor(android.graphics.Color.argb((255 * (1f - since / 350f)).toInt(), 7, 10, 20))

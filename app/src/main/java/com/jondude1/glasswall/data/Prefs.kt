@@ -24,6 +24,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("tiltRotate", true)
         set(v) = sp.edit().putBoolean("tiltRotate", v).apply()
 
+    /** How fast village time runs: 1, 2 or 5 times real time. */
+    var speed: Int
+        get() = sp.getInt("speed", 1).let { if (it == 2 || it == 5) it else 1 }
+        set(v) = sp.edit().putInt("speed", if (v == 2 || v == 5) v else 1).apply()
+
     var fps: Int
         get() = sp.getInt("fps", 30).coerceIn(10, 60)
         set(v) = sp.edit().putInt("fps", v).apply()

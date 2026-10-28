@@ -86,6 +86,7 @@ class SettingsActivity : ComponentActivity() {
         var labels by remember { mutableStateOf(prefs.showLabels) }
         var tilt by remember { mutableStateOf(prefs.tiltRotate) }
         var catchUp by remember { mutableStateOf(prefs.catchUp) }
+        var speed by remember { mutableStateOf(prefs.speed) }
         var fps by remember { mutableStateOf(prefs.fps) }
         var testResult by remember { mutableStateOf("") }
         var confirmReset by remember { mutableStateOf(false) }
@@ -192,6 +193,16 @@ class SettingsActivity : ComponentActivity() {
                     Text("When you come back, the village has carried on (up to 15 minutes)", style = MaterialTheme.typography.bodySmall)
                 }
                 Switch(catchUp, { catchUp = it; prefs.catchUp = it })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text("Village speed")
+                    Text("Or double-tap the wallpaper to cycle", style = MaterialTheme.typography.bodySmall)
+                }
+                for (f in listOf(1, 2, 5)) {
+                    if (f == speed) Button(onClick = {}) { Text("${f}x") }
+                    else OutlinedButton(onClick = { speed = f; prefs.speed = f }) { Text("${f}x") }
+                }
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Frame rate", Modifier.weight(1f))
